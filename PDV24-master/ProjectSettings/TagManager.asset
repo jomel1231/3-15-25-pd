@@ -3,7 +3,18 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Screen
+  - scrw
+  - PhoneScreen
+  - Table
+  - Socket
+  - Screwdriver
+  - Scalpel
+  - SuctionTool
+  - Chassis
+  - Screen_socket
+  - Battery_Socket
   layers:
   - Default
   - TransparentFX

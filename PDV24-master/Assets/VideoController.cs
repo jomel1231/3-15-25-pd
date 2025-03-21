@@ -5,32 +5,50 @@ using TMPro;
 
 public class VideoController : MonoBehaviour
 {
-    public VideoPlayer videoPlayer;  // Assign your VideoPlayer
-    public Slider progressBar;       // Assign your Slider
-    public TextMeshProUGUI  timeStamp;           // Assign your Text for the time display
+    public VideoPlayer videoPlayer;  // Assign VideoPlayer in Inspector
+    public Slider progressBar;       // Assign Slider in Inspector
+    public TextMeshProUGUI timeStamp; // Assign TextMeshProUGUI in Inspector
 
     private bool isDragging = false;
 
     void Start()
     {
-        // Ensure slider max value matches video length when video is prepared
-        videoPlayer.prepareCompleted += (vp) =>
-        {
-            progressBar.maxValue = (float)vp.length;
-        };
+        videoPlayer.prepareCompleted += OnVideoPrepared;
+        videoPlayer.loopPointReached += OnVideoEnd;
+        videoPlayer.Prepare();
 
-        // Start updating progress bar in real-time
-        videoPlayer.Play();
+        progressBar.onValueChanged.AddListener(OnSliderValueChanged);
+    }
+
+    void OnVideoPrepared(VideoPlayer vp)
+    {
+        progressBar.maxValue = (float)videoPlayer.length;
     }
 
     void Update()
     {
-        if (!isDragging)
+        if (videoPlayer.isPrepared)
         {
-            progressBar.value = (float)videoPlayer.time;
-        }
+            if (!isDragging)
+            {
+                progressBar.value = (float)videoPlayer.time;
+            }
 
-        UpdateTimeStamp();
+            UpdateTimeStamp();
+        }
+    }
+
+    public void PlayVideo()
+    {
+        if (!videoPlayer.isPrepared)
+            videoPlayer.Prepare();
+
+        videoPlayer.Play();
+    }
+
+    public void PauseVideo()
+    {
+        videoPlayer.Pause();
     }
 
     public void OnSliderValueChanged(float value)
@@ -42,14 +60,22 @@ public class VideoController : MonoBehaviour
     {
         videoPlayer.time = progressBar.value;
         isDragging = false;
+        if (!videoPlayer.isPlaying)
+            videoPlayer.Play();
     }
 
-    private void UpdateTimeStamp()
+    void UpdateTimeStamp()
     {
         int minutes = Mathf.FloorToInt((float)videoPlayer.time / 60);
         int seconds = Mathf.FloorToInt((float)videoPlayer.time % 60);
         int totalMinutes = Mathf.FloorToInt((float)videoPlayer.length / 60);
         int totalSeconds = Mathf.FloorToInt((float)videoPlayer.length % 60);
+
         timeStamp.text = $"{minutes:00}:{seconds:00} / {totalMinutes:00}:{totalSeconds:00}";
+    }
+
+    void OnVideoEnd(VideoPlayer vp)
+    {
+        // Optional: Handle video completion
     }
 }
